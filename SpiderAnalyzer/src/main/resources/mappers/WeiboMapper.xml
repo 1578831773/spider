@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.demo.mapper.WeiboMapper">
+    <resultMap id="WeiboArticle" type="com.example.demo.bean.WeiboArticle" autoMapping="true">
+        <id column="article_id" property="articleId"/>
+    </resultMap>
+    <resultMap id="WeiboTopArticle" type="com.example.demo.bean.WeiboTopArticle" autoMapping="true">
+        <id column="weibo_top_id" property="weiboTopId"/>
+        <association property="weiboArticle" resultMap="WeiboArticle" autoMapping="true"/>
+    </resultMap>
+
+    <insert id="insertArticleList" parameterType="java.util.List">
+        insert into weibo_article(boot_id, nick_name, publish_time, content, comment_num, like_num, spider_time)
+        values
+        <foreach collection="weiboArticleList" item="article" index="index" separator=",">
+            (
+            #{article.bootId},
+            #{article.nickName},
+            #{article.publishTime},
+            #{article.content},
+            #{article.commentNum},
+            #{article.likeNum},
+            #{article.spiderTime}
+            )
+        </foreach>
+    </insert>
+
+    <select id="getTopArticleList" resultMap="WeiboTopArticle" parameterType="java.lang.Integer">
+        select a.*, b.* from weibo_article a left join weibo_top b
+        on a.article_id = b.article_id
+        where a.boot_id = #{bootId}
+    </select>
+
+    <select id="getTopArticleListByNickName" resultMap="WeiboTopArticle" parameterType="java.lang.String">
+        select a.*, b.* from weibo_article a left join weibo_top b
+        on a.article_id = b.article_id
+        where a.boot_id = #{bootId} and a.nick_name like concat('%', concat(#{nickName}, '%'))
+    </select>
+
+    <select id="getTopArticleListByContent" resultMap="WeiboTopArticle" parameterType="java.lang.String">
+        select a.*, b.* from weibo_article a left join weibo_top b
+        on a.article_id = b.article_id
+        where a.boot_id = #{bootId} and a.content like concat('%', concat(#{content}, '%'))
+    </select>
+
+
+</mapper>
